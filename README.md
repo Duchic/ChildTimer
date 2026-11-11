@@ -28,7 +28,7 @@ sdk.dir=C\:/cesta/k/Android/Sdk
 .\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
 ```
 
-APK vzniká v `app/build/outputs/apk/debug/app-debug.apk`. Minimální Android je 8.0 (API 26).
+APK vzniká v `app/build/outputs/apk/debug/app-debug.apk`. Aktuální instalační balíček je v `dist/ChildTimer-0.1.1-debug.apk`. Minimální Android je 7.0 (API 24); podporovaný je tedy i Android 7.1.
 Jde o ladicí sestavení pro vyzkoušení; vydání do Google Play vyžaduje vlastní podpis.
 
 V tomto počítači je SDK v `.tools/android-sdk`. Kvůli nefunkční síťové proxy Gradlu byla sestavena lokální kopie dostupných Maven knihoven. Pro místní ověření lze použít:
@@ -41,12 +41,15 @@ Složka `.tools` nepatří do zdrojového kódu a na jiném počítači není po
 
 ## Ověření na telefonu
 
+Sestavení `assembleDebug`, všech 6 jednotkových testů i `lintDebug` úspěšně prošly. Podpis APK byl ověřen nástrojem `apksigner`. Lint hlásí 0 chyb a 3 upozornění: target SDK 36 (kompilace používá SDK 37.0), doporučení používat rozměry okna místo konfigurace displeje a doporučení doplnit legacy konfiguraci záloh (zálohování je vypnuté). Na fyzickém zařízení ani v emulátoru zatím aplikace nebyla ověřena; následující kroky jsou manuální kontrolní seznam.
+
 1. Nastavte 1 minutu, spusťte odpočet a ověřte prázdný kruh i krátké upozornění na konci.
 2. Pozastavte, chvíli počkejte a pokračujte. Čas během pauzy neubývá.
 3. Otočte telefon, přepněte aplikaci na pozadí a zhasněte displej. Zkontrolujte správný čas po návratu i upozornění na pozadí.
 4. Nastavte čtyři jiné rychlé volby a barvu, aplikaci znovu otevřete a ověřte uložení.
 5. Vyzkoušejte zámek: krátké klepnutí ho neodemkne, třísekundové podržení ano.
 6. Vyzkoušejte odmítnutí notifikací, vypnutý zvuk, velké systémové písmo a režim na šířku.
+7. Na Androidu 7.0/7.1 ověřte dokončení na pozadí a notifikaci, včetně vypnutého zvuku. Notifikační kanály se vytvářejí pouze na Androidu 8.0 a novějším; starší systém používá kompatibilní notifikaci AndroidX.
 
 Na Androidu 12/12L aplikace před spuštěním požádá o povolení přesných budíků; na Androidu 13+ požádá o notifikace. Zvuk respektuje systémovou hlasitost budíku. Zámek brání náhodným dotykům, není rodičovskou kontrolou telefonu.
 

@@ -2,7 +2,6 @@ package cz.childtimer
 
 import android.Manifest
 import android.app.AlarmManager
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -15,6 +14,7 @@ import android.media.ToneGenerator
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import androidx.core.app.NotificationCompat
 
 class TimerAlarm(private val context: Context) {
     private val manager = context.getSystemService(AlarmManager::class.java)
@@ -39,16 +39,20 @@ class TimerAlarm(private val context: Context) {
 
     fun notifyFinished() {
         val notifications = context.getSystemService(NotificationManager::class.java)
-        val channel = NotificationChannel("timer_finished", "Dokončení časovače", NotificationManager.IMPORTANCE_HIGH)
-            .apply { setSound(null, null); enableVibration(false) }
-        notifications.createNotificationChannel(channel)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel("timer_finished", "Dokončení časovače", NotificationManager.IMPORTANCE_HIGH)
+                .apply { setSound(null, null); enableVibration(false) }
+            notifications.createNotificationChannel(channel)
+        }
         if (Build.VERSION.SDK_INT >= 33 && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
         val open = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        notifications.notify(1, Notification.Builder(context, "timer_finished")
+        notifications.notify(1, NotificationCompat.Builder(context, "timer_finished")
             .setSmallIcon(R.drawable.ic_timer).setContentTitle("Čas vypršel")
             .setContentText("Čas na další dobrodružství. Otevřete časovač.")
-            .setCategory(Notification.CATEGORY_ALARM).setContentIntent(open).setAutoCancel(true).build())
+            // Sound is played separately so the app's sound toggle also works before channels.
+            .setPriority(NotificationCompat.PRIORITY_HIGH).setSound(null).setVibrate(null).setDefaults(0)
+            .setCategory(NotificationCompat.CATEGORY_ALARM).setContentIntent(open).setAutoCancel(true).build())
     }
 }
 
